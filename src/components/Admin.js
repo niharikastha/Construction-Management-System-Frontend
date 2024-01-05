@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import './Admin.css'; // Import the CSS file for styles
+import axios from 'axios';
+
 const Admin = () => {
  const [userData, setUserData] = useState({
-    username: '',
+    name: '',
     email: '',
     mobileNumber: '',
     password: '',
     confirmPassword: '',
-    role: 'projectManager',
+    role: '',
  });
 
  const [loading, setLoading] = useState(false);
@@ -60,23 +62,20 @@ const handleSubmit = async (e) => {
 
   try {
     if (error) {
-      // If there is an error, don't proceed with the submission
       return;
     }
 
     setLoading(true);
-
-    const response = await fetch('http://localhost:3001/add_users', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userData),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to add user');
-    }
+    const authToken = localStorage.getItem('authToken');    
+    console.log(authToken + "authToken");
+    const {data} = await axios.post('http://localhost:4000/api/admin/adduser',userData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+      }
+    );
 
     console.log('User added successfully');
     // Optionally, you can redirect or show a success message here
@@ -97,13 +96,13 @@ const handleSubmit = async (e) => {
       <form onSubmit={handleSubmit} className="form-box">
         {/* Input fields with labels */}
         <div className="input-group">
-          <label>Username:</label>
+          <label>Name:</label>
           <input
             type="text"
-            name="username"
-            value={userData.username}
+            name="name"
+            value={userData.name}
             onChange={handleChange}
-            placeholder="Username"
+            placeholder="name"
           />
         </div>
 
@@ -154,7 +153,7 @@ const handleSubmit = async (e) => {
         <div className="input-group">
           <label>Role:</label>
           <select name="role" value={userData.role} onChange={handleChange}>
-            <option value="projectManager">Project Manager</option>
+            <option value="project manager">Project Manager</option>
             <option value="contractor">Contractor</option>
             <option value="supervisor">Supervisor</option>
           </select>

@@ -32,7 +32,7 @@ const ProjectManager = () => {
 
     try {
       // Assuming your backend is running at http://localhost:3001
-      const response = await fetch('http://localhost:3001/addproject', {
+      const response = await fetch('http://localhost:4000/addproject', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ const ProjectManager = () => {
     // Implement the update logic here using /updateproject API
     try {
       // Assuming your backend is running at http://localhost:3001
-      const response = await fetch(`http://localhost:3001/updateproject/${projectId}`, {
+      const response = await fetch(`http://localhost:4000/updateproject/${projectId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ const ProjectManager = () => {
     // Implement the delete logic here using /deleteproject API
     try {
       // Assuming your backend is running at http://localhost:3001
-      const response = await fetch(`http://localhost:3001/deleteproject/${projectId}`, {
+      const response = await fetch(`http://localhost:4000/deleteproject/${projectId}`, {
         method: 'DELETE',
       });
 
@@ -101,7 +101,7 @@ const ProjectManager = () => {
     const fetchProjects = async () => {
       try {
         // Assuming your backend is running at http://localhost:3001
-        const response = await fetch('http://localhost:3001/projects');
+        const response = await fetch('http://localhost:4000/projects');
 
         if (!response.ok) {
           throw new Error('Failed to fetch projects');
