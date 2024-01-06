@@ -24,12 +24,20 @@ const ProjectManager = () => {
   const [projects, setProjects] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-
+  const [editingProject, setEditingProject] = useState({
+    id: '',
+    projectName: '',
+    picture: null,
+    location: '',
+    price: '',
+    description: '',
+  });
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     navigate('/');
   };
+
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -42,6 +50,11 @@ const ProjectManager = () => {
     } else {
       setProject({ ...project, [name]: value });
     }
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditingProject({ ...editingProject, [name]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -57,7 +70,7 @@ const ProjectManager = () => {
       formData.append('location', project.location);
       formData.append('price', project.price);
       formData.append('description', project.description);
-      // console.log(project.picture,"pic")
+
       const response = await axios.post('http://localhost:4000/api/user/addProject', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -80,10 +93,30 @@ const ProjectManager = () => {
 
   const handleUpdate = async (projectId) => {
     try {
+      const projectToUpdate = projects.find((proj) => proj._id === projectId); // Check the ID field
+      setEditingProject({ ...projectToUpdate });
+    } catch (error) {
+      console.error('Error updating project:', error);
+    }
+  };
+  
+  
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
       const authToken = localStorage.getItem('authToken');
-      const response = await axios.put(`http://localhost:4000/api/user/updateProject/${projectId}`, project, {
+      const formData = new FormData();
+
+      formData.append('projectName', editingProject.projectName);
+      formData.append('picture', editingProject.picture);
+      formData.append('location', editingProject.location);
+      formData.append('price', editingProject.price);
+      formData.append('description', editingProject.description);
+
+      const response = await axios.put(`http://localhost:4000/api/user/updateProject/${editingProject.id}`, formData, {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${authToken}`,
         },
       });
@@ -92,7 +125,19 @@ const ProjectManager = () => {
         throw new Error('Failed to update project');
       }
 
-      // Handle successful update on the frontend if needed
+      const updatedProjects = projects.map((proj) =>
+        proj.id === editingProject.id ? { ...proj, ...editingProject } : proj
+      );
+
+      setProjects(updatedProjects);
+      setEditingProject({
+        id: '',
+        projectName: '',
+        picture: null,
+        location: '',
+        price: '',
+        description: '',
+      });
     } catch (error) {
       console.error('Error updating project:', error);
     }
@@ -122,14 +167,14 @@ const ProjectManager = () => {
       try {
         const authToken = localStorage.getItem('authToken');
   
-        const {data} = await axios.get('http://localhost:4000/api/user/getProject', {
+        const { data } = await axios.get('http://localhost:4000/api/user/getProject', {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
         });
   
-        console.log(data ,"data fetched")
-        // setProjects(data.response);
+        console.log(data, "data fetched");
+        setProjects(data.data);
       } catch (error) {
         console.error('Error fetching projects:', error);
       }
@@ -137,7 +182,6 @@ const ProjectManager = () => {
   
     fetchProjects();
   }, []);
-  
 
   const toggleForm = () => {
     setShowForm(!showForm);
@@ -208,10 +252,10 @@ const ProjectManager = () => {
 
         <h2>All Projects</h2>
         <ul>
-          {projects.map((proj) => (
+          {projects && projects.map((proj) => (
             <li key={proj._id}>
               <h3>{proj.projectName}</h3>
-              {proj.picture && <img src={proj.picture instanceof Blob ? URL.createObjectURL(proj.picture) : proj.picture} alt={proj.projectName} />}
+              {proj.projectPic && <img src={proj.projectPic instanceof Blob ? URL.createObjectURL(proj.projectPic) : proj.projectPic} alt={proj.projectName} />}
               <p>Location: {proj.location}</p>
               <p>Price: {proj.price}</p>
               <p>Description: {proj.description}</p>
@@ -220,6 +264,56 @@ const ProjectManager = () => {
             </li>
           ))}
         </ul>
+
+        {editingProject.id && (
+          <form className="project-form" onSubmit={handleUpdateSubmit}>
+            <label>
+              Name:
+              <input
+                type="text"
+                name="projectName"
+                value={editingProject.projectName}
+                onChange={handleEditChange}
+              />
+            </label>
+            <label>
+              Picture:
+              <input
+                type="file"
+                name="picture"
+                onChange={handleEditChange}
+                accept="image/*"
+              />
+            </label>
+            <label>
+              Location:
+              <input
+                type="text"
+                name="location"
+                value={editingProject.location}
+                onChange={handleEditChange}
+              />
+            </label>
+            <label>
+              Price:
+              <input
+                type="text"
+                name="price"
+                value={editingProject.price}
+                onChange={handleEditChange}
+              />
+            </label>
+            <label>
+              Description:
+              <textarea
+                name="description"
+                value={editingProject.description}
+                onChange={handleEditChange}
+              />
+            </label>
+            <button type="submit">Update Project</button>
+          </form>
+        )}
       </div>
     </div>
   );

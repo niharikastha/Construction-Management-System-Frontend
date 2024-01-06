@@ -57,7 +57,13 @@ body {
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
-  
+  .project-manager-container img {
+    max-width: 100%; /* Ensures the image does not exceed the width of its container */
+    max-height: 100%; /* Ensures the image does not exceed the height of its container */
+    display: block; /* Removes any extra space below the image */
+    margin: auto; /* Centers the image horizontally */
+    margin-top: 10px; /* Adds some space between the image and other elements */
+  }
   .add-project-button {
     background-color: #3498db;
     color: #fff;
