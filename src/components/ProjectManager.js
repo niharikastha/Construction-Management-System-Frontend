@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import './ProjectManager.css';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faFilePdf, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import axios from 'axios';
 
@@ -87,6 +88,16 @@ const ProjectManager = () => {
       setProjects([...projects, newProject]);
       setProject({ projectName: '', picture: null, location: '', price: '', description: '' });
       setShowForm(false);
+      setEditingProject({
+        id: '',
+        projectName: '',
+        picture: null,
+        location: '',
+        price: '',
+        description: '',
+      });
+          setIsEditing(null);
+
     } catch (error) {
       console.error('Error adding project:', error);
     }
@@ -95,7 +106,7 @@ const ProjectManager = () => {
   const handleUpdate = async (projectId) => {
     setIsEditing(projectId);
     try {
-      const projectToUpdate = projects.find((proj) => proj._id === projectId); // Check the ID field
+      const projectToUpdate = projects.find((proj) => proj._id === projectId);
       console.log(projectToUpdate, "updated");
       setEditingProject({ ...projectToUpdate });
     } catch (error) {
@@ -113,9 +124,9 @@ const ProjectManager = () => {
       if (index !== -1) {
         setProjects((previous) => {
           const updatedProjects = [...previous];
-          updatedProjects[index] = editingProject; 
+          updatedProjects[index] = editingProject;
           console.log(updatedProjects, "updated projects")
-          return updatedProjects; 
+          return updatedProjects;
         });
       } else {
         console.error("Project not found in the array.");
@@ -178,7 +189,7 @@ const ProjectManager = () => {
         const filteredProjects = data.data.filter(proj =>
           proj.projectName.toLowerCase().includes(searchTerm.toLowerCase())
         );
-  
+
         setProjects(filteredProjects);
 
       } catch (error) {
@@ -237,7 +248,7 @@ const ProjectManager = () => {
                 type="file"
                 name="picture"
                 onChange={handleChange}
-                accept="image/*"
+                accept="image/*, application/pdf"
               />
             </label>
             <label>
@@ -261,13 +272,30 @@ const ProjectManager = () => {
           {projects && projects.map((proj) => (
             <li key={proj._id}>
               <h3>{proj.projectName}</h3>
-              {proj.projectPic && <img src={proj.projectPic instanceof Blob ? URL.createObjectURL(proj.projectPic) : proj.projectPic} alt={proj.projectName} />}
+              {proj.projectPic && (
+                <div>
+                  {proj.projectPic instanceof Blob && proj.projectPic.type === 'application/pdf' ? (
+                    <div>
+                      <FontAwesomeIcon icon={faFilePdf} /> PDF
+                      <a
+                        href={URL.createObjectURL(proj.projectPic)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <FontAwesomeIcon icon={faDownload} /> Download PDF
+                      </a>
+                    </div>
+                  ) : (
+                    <img src={proj.projectPic instanceof Blob ? URL.createObjectURL(proj.projectPic) : proj.projectPic} alt={proj.projectName} />
+                  )}
+                </div>
+              )}
               <p>Location: {proj.location}</p>
               <p>Price: {proj.price}</p>
               <p>Description: {proj.description}</p>
               <button onClick={() => handleUpdate(proj._id)}>{isEditing === proj._id ? 'Edit' : 'Update'}</button>
               <button onClick={() => handleDelete(proj._id)}>Delete</button>
-              {editingProject._id && (
+              {editingProject._id === proj._id && (
                 <form className="project-form" onSubmit={handleUpdateSubmit}>
                   <label>
                     Name:

@@ -13,11 +13,10 @@ const Supervisor = () => {
   const email = location.state.email;
 
   const [project, setProject] = useState({
-    projectManagerId: '',
-    projectName: '',
-    picture: null,
-    location: '',
-    price: '',
+    supervisorId: '',
+    supervisorName: '',
+    assignment: '',
+    task_completed: '',
     description: '',
   });
 
@@ -27,10 +26,9 @@ const Supervisor = () => {
   const [isEditing, setIsEditing] = useState(null);
   const [editingProject, setEditingProject] = useState({
     id: '',
-    projectName: '',
-    picture: null,
-    location: '',
-    price: '',
+    supervisorName: '',
+    assignment: '',
+    task_completed: '',
     description: '',
   });
 
@@ -45,12 +43,7 @@ const Supervisor = () => {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-
-    if (name === 'picture') {
-      setProject({ ...project, picture: files[0] });
-    } else {
-      setProject({ ...project, [name]: value });
-    }
+    setProject({ ...project, [name]: value });
   };
 
   const handleEditChange = (e) => {
@@ -65,14 +58,13 @@ const Supervisor = () => {
       const authToken = localStorage.getItem('authToken');
       const formData = new FormData();
 
-      formData.append('projectName', project.projectName);
-      formData.append('projectManagerId', authToken);
-      formData.append('picture', project.picture);
-      formData.append('location', project.location);
-      formData.append('price', project.price);
+      formData.append('supervisorName', project.supervisorName);
+      formData.append('supervisorId', authToken);
+      formData.append('assignment', project.assignment);
+      formData.append('task_completed', project.task_completed);
       formData.append('description', project.description);
 
-      const response = await axios.post('http://localhost:4000/api/user/addProject', formData, {
+      const response = await axios.post('http://localhost:4000/api/user/addSupervisor', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${authToken}`,
@@ -85,7 +77,7 @@ const Supervisor = () => {
 
       const newProject = { ...project, id: Date.now() };
       setProjects([...projects, newProject]);
-      setProject({ projectName: '', picture: null, location: '', price: '', description: '' });
+      setProject({ supervisorName: '', assignment: '', task_completed: '', description: '' });
       setShowForm(false);
     } catch (error) {
       console.error('Error adding project:', error);
@@ -122,7 +114,7 @@ const Supervisor = () => {
       }
       const authToken = localStorage.getItem('authToken');
       console.log(editingProject,"form");
-      const response = await axios.patch(`http://localhost:4000/api/user/updateProject/${editingProject._id}`, editingProject, {
+      const response = await axios.patch(`http://localhost:4000/api/user/updateSupervisor/${editingProject._id}`, editingProject, {
         headers: {
           // 'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${authToken}`,
@@ -135,10 +127,9 @@ const Supervisor = () => {
 
       setEditingProject({
         id: '',
-        projectName: '',
-        picture: null,
-        location: '',
-        price: '',
+        supervisorName: '',
+        assignment: '',
+        task_completed: '',
         description: '',
       });
       setIsEditing(null);
@@ -150,7 +141,7 @@ const Supervisor = () => {
   const handleDelete = async (projectId) => {
     try {
       const authToken = localStorage.getItem('authToken');
-      await axios.delete(`http://localhost:4000/api/user/deleteProject/${projectId}`, {
+      await axios.delete(`http://localhost:4000/api/user/deleteSupervisor/${projectId}`, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },
@@ -166,7 +157,7 @@ const Supervisor = () => {
       try {
         const authToken = localStorage.getItem('authToken');
 
-        const { data } = await axios.get('http://localhost:4000/api/user/getProject', {
+        const { data } = await axios.get('http://localhost:4000/api/user/getSupervisor', {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -192,7 +183,7 @@ const Supervisor = () => {
         <div className="navbar-left">
           <p>Dream Home Reality</p>
         </div>
-        <h1 className="navbar-usertype">Project Manager</h1>
+        <h1 className="navbar-usertype">Supervisor</h1>
 
         <div className="navbar-right">
 
@@ -213,33 +204,24 @@ const Supervisor = () => {
             onChange={handleSearchChange}
           />
         </div>
-        <h2>Add a new project</h2>
+        <h2>Add a new Supervising Task</h2>
         <button className="add-project-button" onClick={toggleForm}>
-          Add New Project
+          Add New Task
         </button>
 
         {showForm && (
           <form className="project-form" onSubmit={handleSubmit}>
             <label>
               Name:
-              <input type="text" name="projectName" value={project.projectName} onChange={handleChange} />
+              <input type="text" name="supervisorName" value={project.supervisorName} onChange={handleChange} />
             </label>
             <label>
-              Picture:
-              <input
-                type="file"
-                name="picture"
-                onChange={handleChange}
-                accept="image/*"
-              />
+              Assignment:
+              <input type="text" name="assignment" value={project.assignment} onChange={handleChange} />
             </label>
             <label>
-              Location:
-              <input type="text" name="location" value={project.location} onChange={handleChange} />
-            </label>
-            <label>
-              Price:
-              <input type="text" name="price" value={project.price} onChange={handleChange} />
+              Task completed/not:
+              <input type="text" name="task_completed" value={project.task_completed} onChange={handleChange} />
             </label>
             <label>
               Description:
@@ -249,14 +231,13 @@ const Supervisor = () => {
           </form>
         )}
 
-        <h2>All Projects</h2>
+        <h2>All Supervising Tasks</h2>
         <ul>
           {projects && projects.map((proj) => (
             <li key={proj._id}>
-              <h3>{proj.projectName}</h3>
-              {proj.projectPic && <img src={proj.projectPic instanceof Blob ? URL.createObjectURL(proj.projectPic) : proj.projectPic} alt={proj.projectName} />}
-              <p>Location: {proj.location}</p>
-              <p>Price: {proj.price}</p>
+              <h3>{proj.supervisorName}</h3>
+              <p>Assignment: {proj.assignment}</p>
+              <p>Task Completed/Not: {proj.task_completed}</p>
               <p>Description: {proj.description}</p>
               <button onClick={() => handleUpdate(proj._id)}>{isEditing === proj._id ? 'Edit' : 'Update'}</button>
               <button onClick={() => handleDelete(proj._id)}>Delete</button>
@@ -266,26 +247,26 @@ const Supervisor = () => {
                     Name:
                     <input
                       type="text"
-                      name="projectName"
-                      value={editingProject.projectName}
+                      name="supervisorName"
+                      value={editingProject.supervisorName}
                       onChange={handleEditChange}
                     />
                   </label>
                   <label>
-                    Location:
+                    Assignment:
                     <input
                       type="text"
-                      name="location"
-                      value={editingProject.location}
+                      name="assignment"
+                      value={editingProject.assignment}
                       onChange={handleEditChange}
                     />
                   </label>
                   <label>
-                    Price:
+                    Task Completed/Not:
                     <input
                       type="text"
-                      name="price"
-                      value={editingProject.price}
+                      name="task_completed"
+                      value={editingProject.task_completed}
                       onChange={handleEditChange}
                     />
                   </label>
