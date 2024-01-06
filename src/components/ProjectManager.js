@@ -12,6 +12,11 @@ const ProjectManager = () => {
   const navigate = useNavigate();
   const email = location.state.email;
 
+
+  const [projects, setProjects] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isEditing, setIsEditing] = useState(null);
   const [project, setProject] = useState({
     projectManagerId: '',
     projectName: '',
@@ -20,11 +25,6 @@ const ProjectManager = () => {
     price: '',
     description: '',
   });
-
-  const [projects, setProjects] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isEditing, setIsEditing] = useState(null);
   const [editingProject, setEditingProject] = useState({
     id: '',
     projectName: '',
@@ -114,14 +114,14 @@ const ProjectManager = () => {
         setProjects((previous) => {
           const updatedProjects = [...previous]; // Create a copy of the array
           updatedProjects[index] = editingProject; // Update the specific element
-          console.log(updatedProjects,"updated projects")
+          console.log(updatedProjects, "updated projects")
           return updatedProjects; // Return the updated array
         });
       } else {
         console.error("Project not found in the array.");
       }
       const authToken = localStorage.getItem('authToken');
-      console.log(editingProject,"form");
+      console.log(editingProject, "form");
       const response = await axios.patch(`http://localhost:4000/api/user/updateProject/${editingProject._id}`, editingProject, {
         headers: {
           // 'Content-Type': 'multipart/form-data',
@@ -174,13 +174,20 @@ const ProjectManager = () => {
 
         console.log(data, "data fetched");
         setProjects(data.data);
+
+        const filteredProjects = data.data.filter(proj =>
+          proj.projectName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+  
+        setProjects(filteredProjects);
+
       } catch (error) {
         console.error('Error fetching projects:', error);
       }
     };
 
     fetchProjects();
-  }, []);
+  }, [searchTerm]);
 
   const toggleForm = () => {
     setShowForm(!showForm);

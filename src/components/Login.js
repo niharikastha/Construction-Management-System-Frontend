@@ -48,8 +48,8 @@ const Login = () => {
           navigate('/project',{ state: { email: email } });
         } else if (data.data.userRole === 'supervisor') {
           navigate('/supervisor',{ state: { email: email } });
-        }  else if (data.data.userRole === 'constructor') {
-          navigate('/constructor',{ state: { email: email } });
+        }  else if (data.data.userRole === 'contractor') {
+          navigate('/contractor',{ state: { email: email } });
         }else if (data.data.userRole === 'admin') {
           navigate('/admin',{ state: { email: email } });}
       }
