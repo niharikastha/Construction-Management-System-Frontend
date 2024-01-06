@@ -58,8 +58,16 @@ const Admin = () => {
   setUserData({ ...userData, [name]: value });
 };
 
-const handleLogout = () => {
-  localStorage.removeItem('authToken');
+const handleLogout = async () => {
+  const authToken = localStorage.getItem('authToken');    
+  console.log(authToken, "before");
+
+  // Asynchronously remove the authToken
+  await localStorage.removeItem('authToken');
+
+  const authTokenAfterRemoval = localStorage.getItem('authToken');
+  console.log(authTokenAfterRemoval, "after");
+
   navigate('/');
 };
 

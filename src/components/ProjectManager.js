@@ -53,11 +53,11 @@ const ProjectManager = () => {
 
       formData.append('projectName', project.projectName);
       formData.append('projectManagerId', authToken);
-      // formData.append('picture', project.picture);
+      formData.append('picture', project.picture);
       formData.append('location', project.location);
       formData.append('price', project.price);
       formData.append('description', project.description);
-
+      // console.log(project.picture,"pic")
       const response = await axios.post('http://localhost:4000/api/user/addProject', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -120,21 +120,24 @@ const ProjectManager = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/user/projects');
-
-        if (response.status !== 200) {
-          throw new Error('Failed to fetch projects');
-        }
-
-        const data = await response.data;
-        setProjects(data.projects);
+        const authToken = localStorage.getItem('authToken');
+  
+        const {data} = await axios.get('http://localhost:4000/api/user/getProject', {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+  
+        console.log(data ,"data fetched")
+        // setProjects(data.response);
       } catch (error) {
         console.error('Error fetching projects:', error);
       }
     };
-
+  
     fetchProjects();
   }, []);
+  
 
   const toggleForm = () => {
     setShowForm(!showForm);
@@ -206,7 +209,7 @@ const ProjectManager = () => {
         <h2>All Projects</h2>
         <ul>
           {projects.map((proj) => (
-            <li key={proj.id}>
+            <li key={proj._id}>
               <h3>{proj.projectName}</h3>
               {proj.picture && <img src={proj.picture instanceof Blob ? URL.createObjectURL(proj.picture) : proj.picture} alt={proj.projectName} />}
               <p>Location: {proj.location}</p>

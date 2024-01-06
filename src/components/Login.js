@@ -59,6 +59,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error('Login error:', error);
+      alert('please try again.')
     }
     console.log("after making api request!")
   };
