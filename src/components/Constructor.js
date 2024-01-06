@@ -97,7 +97,7 @@ const Constructor = () => {
     const handleUpdate = async (projectId) => {
         setIsEditing(projectId);
         try {
-            const projectToUpdate = projects.find((proj) => proj._id === projectId); // Check the ID field
+            const projectToUpdate = projects.find((proj) => proj._id === projectId);
             console.log(projectToUpdate, "updated");
             setEditingProject({ ...projectToUpdate });
         } catch (error) {
@@ -114,10 +114,10 @@ const Constructor = () => {
 
             if (index !== -1) {
                 setProjects((previous) => {
-                    const updatedProjects = [...previous]; // Create a copy of the array
-                    updatedProjects[index] = editingProject; // Update the specific element
+                    const updatedProjects = [...previous]; 
+                    updatedProjects[index] = editingProject; 
                     console.log(updatedProjects, "updated projects")
-                    return updatedProjects; // Return the updated array
+                    return updatedProjects; 
                 });
             } else {
                 console.error("Project not found in the array.");
@@ -198,12 +198,11 @@ const Constructor = () => {
 
     return (
         <div>
-            {/* <p>Hello</p> */}
             <nav className="navbar">
           <div className="navbar-left">
             <p>Dream Home Reality</p>
           </div>
-          <h1 className="navbar-usertype">Constructor</h1>
+          <h1 className="navbar-usertype">Contractor</h1>
   
           <div className="navbar-right">
   
@@ -224,9 +223,9 @@ const Constructor = () => {
               onChange={handleSearchChange}
             />
           </div>
-          <h2>Add a new project</h2>
+          <h2>Add a new task</h2>
           <button className="add-project-button" onClick={toggleForm}>
-            Add New Project
+            Add New Task
           </button>
   
           {showForm && (
@@ -260,7 +259,7 @@ const Constructor = () => {
             </form>
           )}
   
-          <h2>All Projects</h2>
+          <h2>All Contractor Tasks</h2>
           <ul>
             {projects && projects.map((proj) => (
               <li key={proj._id}>

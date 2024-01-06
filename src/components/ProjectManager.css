@@ -1,4 +1,3 @@
-/* ProjectManager.css */
 
 body {
     margin: 0;
@@ -6,7 +5,6 @@ body {
     font-family: 'Arial', sans-serif;
   }
   
-  /* Add this CSS to your stylesheet */
 .navbar {
   display: flex;
   justify-content: space-between;

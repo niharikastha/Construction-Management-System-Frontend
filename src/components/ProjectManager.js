@@ -112,10 +112,10 @@ const ProjectManager = () => {
 
       if (index !== -1) {
         setProjects((previous) => {
-          const updatedProjects = [...previous]; // Create a copy of the array
-          updatedProjects[index] = editingProject; // Update the specific element
+          const updatedProjects = [...previous];
+          updatedProjects[index] = editingProject; 
           console.log(updatedProjects, "updated projects")
-          return updatedProjects; // Return the updated array
+          return updatedProjects; 
         });
       } else {
         console.error("Project not found in the array.");

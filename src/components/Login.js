@@ -1,8 +1,7 @@
-// src/components/Login.js
 import React, { useState } from 'react';
-import './login.css'; // Import your CSS file for styling
+import './login.css';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
@@ -16,7 +15,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
-    // Validation checks
     if (!email) {
       setEmailError('Email is required');
       return;
@@ -31,13 +29,11 @@ const Login = () => {
       setPasswordError('');
     }
 
-    // API call
     try {
       console.log('Before making API request');
 
       const {data} = await axios.post('http://localhost:4000/api/auth/login', {email, password});
 
-      // Save the authentication token in local storage
       localStorage.setItem('authToken', data.data.token);
       console.log('Login successful:', data);
 
@@ -96,20 +92,13 @@ const Login = () => {
           </div>
           <span className="error-message">{passwordError}</span>
         </div>
-
-        {/* <div className="form-group">
-          <label>Role:</label>
-          <input
-            type="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          />
-          <span className="error-message">{roleError}</span>
-        </div> */}
         <div className="form-group">
           <button type="button" onClick={handleLogin}>
             Login
           </button>
+          <Link to="/signup" className="signup-text">
+            Signup
+          </Link>
         </div>
       </form>
     </div>

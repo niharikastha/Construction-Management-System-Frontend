@@ -1,9 +1,7 @@
-/* src/components/Admin.css */
-/* Navbar styles */
+
 .navbar {
   display: flex;
   justify-content: space-between;
-  /* align-items: center; */
   background-color: #333;
   color: white;
   padding: 10px 20px;
@@ -49,7 +47,7 @@
   
   input,
   select {
-    width: calc(100% - 22px); /* Adjusted width to account for padding */
+    width: calc(100% - 22px); 
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;

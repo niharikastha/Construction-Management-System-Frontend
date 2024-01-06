@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import './Signup.css'; // Import your CSS file for styling
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -120,6 +120,9 @@ const Signup = () => {
           <button type="button" onClick={handleSignup}>
             Signup
           </button>
+          <Link to="/" className="signup-text">
+            Login
+          </Link>
         </div>
       </form>
     </div>
