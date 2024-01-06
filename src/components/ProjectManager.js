@@ -1,12 +1,21 @@
-// ProjectManager.js
-
 import React, { useState, useEffect } from 'react';
-import './ProjectManager.css'; // Import the CSS file
+import './ProjectManager.css';
+import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+
+import axios from 'axios';
 
 const ProjectManager = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const email = location.state.email;
+
   const [project, setProject] = useState({
-    name: '',
-    picture: '',
+    projectManagerId: '',
+    projectName: '',
+    picture: null,
     location: '',
     price: '',
     description: '',
@@ -14,109 +23,118 @@ const ProjectManager = () => {
 
   const [projects, setProjects] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    navigate('/');
+  };
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (e.target.name === 'picture') {
-        setProject({ ...project, picture: e.target.files[0] });
-      } else {
-        setProject({ ...project, [e.target.name]: e.target.value });
-      }
-    setProject({ ...project, [name]: value });
 
-
+    if (name === 'picture') {
+      setProject({ ...project, picture: files[0] });
+    } else {
+      setProject({ ...project, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      // Assuming your backend is running at http://localhost:3001
-      const response = await fetch('http://localhost:4000/addproject', {
-        method: 'POST',
+      const authToken = localStorage.getItem('authToken');
+      const formData = new FormData();
+
+      formData.append('projectName', project.projectName);
+      formData.append('projectManagerId', authToken);
+      // formData.append('picture', project.picture);
+      formData.append('location', project.location);
+      formData.append('price', project.price);
+      formData.append('description', project.description);
+
+      const response = await axios.post('http://localhost:4000/api/user/addProject', formData, {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${authToken}`,
         },
-        body: JSON.stringify(project),
       });
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error('Failed to add project');
       }
 
       const newProject = { ...project, id: Date.now() };
       setProjects([...projects, newProject]);
-      setProject({ name: '', picture: null, location: '', price: '', description: '' });
+      setProject({ projectName: '', picture: null, location: '', price: '', description: '' });
       setShowForm(false);
     } catch (error) {
       console.error('Error adding project:', error);
-      // Handle error scenarios
     }
   };
 
   const handleUpdate = async (projectId) => {
-    // Implement the update logic here using /updateproject API
     try {
-      // Assuming your backend is running at http://localhost:3001
-      const response = await fetch(`http://localhost:4000/updateproject/${projectId}`, {
-        method: 'PUT',
+      const authToken = localStorage.getItem('authToken');
+      const response = await axios.put(`http://localhost:4000/api/user/updateProject/${projectId}`, project, {
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
         },
-        // Provide updated data in the request body if needed
       });
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error('Failed to update project');
       }
 
-      // Handle successful update on the frontend (if needed)
+      // Handle successful update on the frontend if needed
     } catch (error) {
       console.error('Error updating project:', error);
-      // Handle error scenarios
     }
   };
 
   const handleDelete = async (projectId) => {
-    // Implement the delete logic here using /deleteproject API
     try {
-      // Assuming your backend is running at http://localhost:3001
-      const response = await fetch(`http://localhost:4000/deleteproject/${projectId}`, {
-        method: 'DELETE',
+      const authToken = localStorage.getItem('authToken');
+      const response = await axios.delete(`http://localhost:4000/api/user/deleteProject/${projectId}`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
       });
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error('Failed to delete project');
       }
 
       setProjects(projects.filter((proj) => proj.id !== projectId));
     } catch (error) {
       console.error('Error deleting project:', error);
-      // Handle error scenarios
     }
   };
 
   useEffect(() => {
-    // Fetch existing projects from the backend when the component mounts
     const fetchProjects = async () => {
       try {
-        // Assuming your backend is running at http://localhost:3001
-        const response = await fetch('http://localhost:4000/projects');
+        const response = await axios.get('http://localhost:4000/api/user/projects');
 
-        if (!response.ok) {
+        if (response.status !== 200) {
           throw new Error('Failed to fetch projects');
         }
 
-        const data = await response.json();
+        const data = await response.data;
         setProjects(data.projects);
       } catch (error) {
         console.error('Error fetching projects:', error);
-        // Handle error scenarios
       }
     };
 
     fetchProjects();
-  }, []); // Run this effect only once when the component mounts
+  }, []);
 
   const toggleForm = () => {
     setShowForm(!showForm);
@@ -125,10 +143,30 @@ const ProjectManager = () => {
   return (
     <div>
       <nav className="navbar">
-        <h1>Project Manager</h1>
+        <div className="navbar-left">
+          <p>Dream Home Reality</p>
+        </div>
+        <h1 className="navbar-usertype">Project Manager</h1>
+
+        <div className="navbar-right">
+
+          <p className="navbar-useremail">{email}</p>
+          <span className="logout" onClick={handleLogout} style={{ cursor: 'pointer', marginLeft: '10px' }}>
+            Logout
+          </span>
+          <FontAwesomeIcon icon={faRightFromBracket} />
+        </div>
       </nav>
 
       <div className="project-manager-container">
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="Search projects..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
         <h2>Add a new project</h2>
         <button className="add-project-button" onClick={toggleForm}>
           Add New Project
@@ -138,17 +176,17 @@ const ProjectManager = () => {
           <form className="project-form" onSubmit={handleSubmit}>
             <label>
               Name:
-              <input type="text" name="name" value={project.name} onChange={handleChange} />
+              <input type="text" name="projectName" value={project.projectName} onChange={handleChange} />
             </label>
             <label>
-            Picture:
-            <input
-              type="file"
-              name="picture"
-              onChange={handleChange}
-              accept="image/*"
-            />
-          </label>
+              Picture:
+              <input
+                type="file"
+                name="picture"
+                onChange={handleChange}
+                accept="image/*"
+              />
+            </label>
             <label>
               Location:
               <input type="text" name="location" value={project.location} onChange={handleChange} />
@@ -169,8 +207,8 @@ const ProjectManager = () => {
         <ul>
           {projects.map((proj) => (
             <li key={proj.id}>
-              <h3>{proj.name}</h3>
-              {proj.picture && <img src={proj.picture instanceof Blob ? URL.createObjectURL(proj.picture) : proj.picture} alt={proj.name} />}
+              <h3>{proj.projectName}</h3>
+              {proj.picture && <img src={proj.picture instanceof Blob ? URL.createObjectURL(proj.picture) : proj.picture} alt={proj.projectName} />}
               <p>Location: {proj.location}</p>
               <p>Price: {proj.price}</p>
               <p>Description: {proj.description}</p>

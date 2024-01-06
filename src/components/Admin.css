@@ -1,4 +1,26 @@
 /* src/components/Admin.css */
+/* Navbar styles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  /* align-items: center; */
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+}
+
+.navbar-left {
+  flex: 1;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-right p {
+  margin-right: 20px;
+}
 
 .admin-container {
     display: flex;

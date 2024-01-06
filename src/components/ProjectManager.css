@@ -6,13 +6,49 @@ body {
     font-family: 'Arial', sans-serif;
   }
   
-  .navbar {
-    background-color: #333;
-    color: #fff;
-    padding: 10px;
-    text-align: center;
-  }
-  
+  /* Add this CSS to your stylesheet */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #5e95de;
+  color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.navbar-left p {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-usertype {
+  margin: 10px;
+  padding-right: 20px;
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+.navbar-useremail {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.logout {
+  cursor: pointer;
+  margin-left: 10px;
+  padding: 10px;
+  font-size: 1rem;
+  color: #fff;
+}
+
+
+
   .project-manager-container {
     max-width: 600px;
     margin: 20px auto;

@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
-import './Admin.css'; // Import the CSS file for styles
+import './Admin.css';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+
+import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Admin = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const email = location.state.email;
+// console.log(email,"email");
  const [userData, setUserData] = useState({
     name: '',
     email: '',
-    mobileNumber: '',
     password: '',
     confirmPassword: '',
-    role: '',
+    role: 'project manager',
  });
 
  const [loading, setLoading] = useState(false);
@@ -45,17 +54,15 @@ const Admin = () => {
     }
   }
 
-  if (name === 'mobileNumber') {
-    const regex = /^\d{10}$/;
-    if (!regex.test(value)) {
-      setError('Mobile phone number should be 10 digits only');
-    } else {
-      setError(null);
-    }
-  }
 
   setUserData({ ...userData, [name]: value });
 };
+
+const handleLogout = () => {
+  localStorage.removeItem('authToken');
+  navigate('/');
+};
+
 
 const handleSubmit = async (e) => {
   e.preventDefault(); // Prevent default form submission
@@ -91,8 +98,24 @@ const handleSubmit = async (e) => {
 
 
   return (
+    <div>
+    {/* Navbar */}
+    <nav className="navbar">
+        <div className="navbar-left">
+          <p>Dream Home Reality</p>
+        </div>
+        <h1 className="navbar-usertype">Admin</h1>
+
+        <div className="navbar-right">
+          <p className="navbar-useremail">{email}</p>
+          <span className="logout" onClick={handleLogout} style={{ cursor: 'pointer', marginLeft: '10px' }}>
+            Logout
+          </span>
+          <FontAwesomeIcon icon={faRightFromBracket} />
+        </div>
+      </nav>
     <div className="admin-container">
-      <h1>Add User (Admin Panel)</h1>
+      {/* <h1>Add User (Admin Panel)</h1> */}
       <form onSubmit={handleSubmit} className="form-box">
         {/* Input fields with labels */}
         <div className="input-group">
@@ -117,16 +140,7 @@ const handleSubmit = async (e) => {
           />
         </div>
 
-        <div className="input-group">
-          <label>Mobile Number:</label>
-          <input
-            type="text"
-            name="mobileNumber"
-            value={userData.mobileNumber}
-            onChange={handleChange}
-            placeholder="Mobile Number"
-          />
-        </div>
+      
 
         <div className="input-group">
           <label>Password:</label>
@@ -169,6 +183,7 @@ const handleSubmit = async (e) => {
           </button>
         </div>
       </form>
+    </div>
     </div>
   );
 };

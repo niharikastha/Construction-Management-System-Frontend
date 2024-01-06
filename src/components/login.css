@@ -42,4 +42,24 @@
   button:hover {
     background-color: #45a049;
   }
+  .error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+
+  .password-input {
+    position: relative;
+  }
   
+  .password-input input {
+    padding-right: 30px; /* Space for the eye icon */
+  }
+  
+  .password-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
