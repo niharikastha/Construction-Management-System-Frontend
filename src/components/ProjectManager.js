@@ -24,6 +24,7 @@ const ProjectManager = () => {
   const [projects, setProjects] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isEditing, setIsEditing] = useState(null);
   const [editingProject, setEditingProject] = useState({
     id: '',
     projectName: '',
@@ -92,31 +93,38 @@ const ProjectManager = () => {
   };
 
   const handleUpdate = async (projectId) => {
+    setIsEditing(projectId);
     try {
       const projectToUpdate = projects.find((proj) => proj._id === projectId); // Check the ID field
+      console.log(projectToUpdate, "updated");
       setEditingProject({ ...projectToUpdate });
     } catch (error) {
       console.error('Error updating project:', error);
     }
   };
-  
-  
+
+
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      const index = projects.findIndex((proj) => proj._id === editingProject._id);
+
+      if (index !== -1) {
+        setProjects((previous) => {
+          const updatedProjects = [...previous]; // Create a copy of the array
+          updatedProjects[index] = editingProject; // Update the specific element
+          console.log(updatedProjects,"updated projects")
+          return updatedProjects; // Return the updated array
+        });
+      } else {
+        console.error("Project not found in the array.");
+      }
       const authToken = localStorage.getItem('authToken');
-      const formData = new FormData();
-
-      formData.append('projectName', editingProject.projectName);
-      formData.append('picture', editingProject.picture);
-      formData.append('location', editingProject.location);
-      formData.append('price', editingProject.price);
-      formData.append('description', editingProject.description);
-
-      const response = await axios.put(`http://localhost:4000/api/user/updateProject/${editingProject.id}`, formData, {
+      console.log(editingProject,"form");
+      const response = await axios.patch(`http://localhost:4000/api/user/updateProject/${editingProject._id}`, editingProject, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          // 'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${authToken}`,
         },
       });
@@ -125,11 +133,6 @@ const ProjectManager = () => {
         throw new Error('Failed to update project');
       }
 
-      const updatedProjects = projects.map((proj) =>
-        proj.id === editingProject.id ? { ...proj, ...editingProject } : proj
-      );
-
-      setProjects(updatedProjects);
       setEditingProject({
         id: '',
         projectName: '',
@@ -138,6 +141,7 @@ const ProjectManager = () => {
         price: '',
         description: '',
       });
+      setIsEditing(null);
     } catch (error) {
       console.error('Error updating project:', error);
     }
@@ -146,17 +150,12 @@ const ProjectManager = () => {
   const handleDelete = async (projectId) => {
     try {
       const authToken = localStorage.getItem('authToken');
-      const response = await axios.delete(`http://localhost:4000/api/user/deleteProject/${projectId}`, {
+      await axios.delete(`http://localhost:4000/api/user/deleteProject/${projectId}`, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },
       });
-
-      if (response.status !== 200) {
-        throw new Error('Failed to delete project');
-      }
-
-      setProjects(projects.filter((proj) => proj.id !== projectId));
+      setProjects(projects.filter((proj) => proj._id !== projectId));
     } catch (error) {
       console.error('Error deleting project:', error);
     }
@@ -166,20 +165,20 @@ const ProjectManager = () => {
     const fetchProjects = async () => {
       try {
         const authToken = localStorage.getItem('authToken');
-  
+
         const { data } = await axios.get('http://localhost:4000/api/user/getProject', {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
         });
-  
+
         console.log(data, "data fetched");
         setProjects(data.data);
       } catch (error) {
         console.error('Error fetching projects:', error);
       }
     };
-  
+
     fetchProjects();
   }, []);
 
@@ -259,61 +258,53 @@ const ProjectManager = () => {
               <p>Location: {proj.location}</p>
               <p>Price: {proj.price}</p>
               <p>Description: {proj.description}</p>
-              <button onClick={() => handleUpdate(proj.id)}>Update</button>
-              <button onClick={() => handleDelete(proj.id)}>Delete</button>
+              <button onClick={() => handleUpdate(proj._id)}>{isEditing === proj._id ? 'Edit' : 'Update'}</button>
+              <button onClick={() => handleDelete(proj._id)}>Delete</button>
+              {editingProject._id && (
+                <form className="project-form" onSubmit={handleUpdateSubmit}>
+                  <label>
+                    Name:
+                    <input
+                      type="text"
+                      name="projectName"
+                      value={editingProject.projectName}
+                      onChange={handleEditChange}
+                    />
+                  </label>
+                  <label>
+                    Location:
+                    <input
+                      type="text"
+                      name="location"
+                      value={editingProject.location}
+                      onChange={handleEditChange}
+                    />
+                  </label>
+                  <label>
+                    Price:
+                    <input
+                      type="text"
+                      name="price"
+                      value={editingProject.price}
+                      onChange={handleEditChange}
+                    />
+                  </label>
+                  <label>
+                    Description:
+                    <textarea
+                      name="description"
+                      value={editingProject.description}
+                      onChange={handleEditChange}
+                    />
+                  </label>
+                  <button type="submit">Update Project</button>
+                </form>
+              )}
             </li>
           ))}
         </ul>
 
-        {editingProject.id && (
-          <form className="project-form" onSubmit={handleUpdateSubmit}>
-            <label>
-              Name:
-              <input
-                type="text"
-                name="projectName"
-                value={editingProject.projectName}
-                onChange={handleEditChange}
-              />
-            </label>
-            <label>
-              Picture:
-              <input
-                type="file"
-                name="picture"
-                onChange={handleEditChange}
-                accept="image/*"
-              />
-            </label>
-            <label>
-              Location:
-              <input
-                type="text"
-                name="location"
-                value={editingProject.location}
-                onChange={handleEditChange}
-              />
-            </label>
-            <label>
-              Price:
-              <input
-                type="text"
-                name="price"
-                value={editingProject.price}
-                onChange={handleEditChange}
-              />
-            </label>
-            <label>
-              Description:
-              <textarea
-                name="description"
-                value={editingProject.description}
-                onChange={handleEditChange}
-              />
-            </label>
-            <button type="submit">Update Project</button>
-          </form>
-        )}
+
       </div>
     </div>
   );
