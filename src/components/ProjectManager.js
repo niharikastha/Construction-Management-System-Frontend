@@ -3,7 +3,6 @@ import './ProjectManager.css';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
-import { faFilePdf, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import axios from 'axios';
@@ -34,6 +33,13 @@ const ProjectManager = () => {
     price: '',
     description: '',
   });
+  const [errors, setErrors] = useState({
+    projectName: '',
+    location: '',
+    price: '',
+    description: '',
+    picture: '',
+  });
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
@@ -49,8 +55,10 @@ const ProjectManager = () => {
 
     if (name === 'picture') {
       setProject({ ...project, picture: files[0] });
+      setErrors({ ...errors, picture: '' });
     } else {
       setProject({ ...project, [name]: value });
+      setErrors({ ...errors, [name]: '' });
     }
   };
 
@@ -61,6 +69,41 @@ const ProjectManager = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const newErrors = {};
+
+    if (!project.projectName.trim()) {
+      newErrors.projectName = 'Name is required';
+    }
+
+    if (!project.location.trim()) {
+      newErrors.location = 'Location is required';
+    }
+
+    if (!project.price.trim()) {
+      newErrors.price = 'Price is required';
+    } else if (isNaN(project.price)) {
+      newErrors.price = 'Price must be a number';
+    }
+
+    if (!project.description.trim()) {
+      newErrors.description = 'Description is required';
+    }
+
+    if (!project.picture) {
+      newErrors.picture = 'Picture is required';
+    } else {
+      const allowedFormats = ['jpg', 'jpeg', 'png'];
+      const pictureFormat = project.picture?.name.split('.').pop().toLowerCase();
+      if (!allowedFormats.includes(pictureFormat)) {
+        newErrors.picture = 'Picture must be in JPG, JPEG, or PNG format';
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      alert("Enter all the fields correctly!")
+      setErrors(newErrors);
+      return;
+    }
 
     try {
       const authToken = localStorage.getItem('authToken');
@@ -86,7 +129,13 @@ const ProjectManager = () => {
 
       const newProject = { ...project, id: Date.now() };
       setProjects([...projects, newProject]);
-      setProject({ projectName: '', picture: null, location: '', price: '', description: '' });
+      setProject({
+        projectName: '',
+        picture: null,
+        location: '',
+        price: '',
+        description: ''
+      });
       setShowForm(false);
       setEditingProject({
         id: '',
@@ -96,8 +145,14 @@ const ProjectManager = () => {
         price: '',
         description: '',
       });
-          setIsEditing(null);
-
+      setIsEditing(null);
+      setErrors({
+        projectName: '',
+        location: '',
+        price: '',
+        description: '',
+        picture: '',
+      });
     } catch (error) {
       console.error('Error adding project:', error);
     }
@@ -172,7 +227,12 @@ const ProjectManager = () => {
     }
   };
 
+  const toggleForm = () => {
+    setShowForm(!showForm);
+  };
+
   useEffect(() => {
+
     const fetchProjects = async () => {
       try {
         const authToken = localStorage.getItem('authToken');
@@ -200,10 +260,28 @@ const ProjectManager = () => {
     fetchProjects();
   }, [searchTerm]);
 
-  const toggleForm = () => {
-    setShowForm(!showForm);
-  };
+  useEffect(() => {
+    const checkAuthToken = async () => {
+      const authToken = localStorage.getItem('authToken');
 
+      if (!authToken) {
+        // If there's no token, navigate to the login page
+        navigate('/');
+        return;
+      }
+      // try {
+      //   const response = await axios.get('http://localhost:4000/api/user/checkToken', {
+      //     headers: {
+      //       Authorization: `Bearer ${authToken}`,
+      //     },
+      //   });
+      // } catch (error) {
+      //   navigate('/');
+      // }
+    };
+
+    checkAuthToken();
+  }, [navigate]);
   return (
     <div>
       <nav className="navbar">
@@ -241,6 +319,7 @@ const ProjectManager = () => {
             <label>
               Name:
               <input type="text" name="projectName" value={project.projectName} onChange={handleChange} />
+              <span style={{ color: 'red' }}>{errors.projectName}</span>
             </label>
             <label>
               Picture:
@@ -250,18 +329,26 @@ const ProjectManager = () => {
                 onChange={handleChange}
                 accept="image/*, application/pdf"
               />
+              <span style={{ color: 'red' }}>{errors.picture}</span>
+
             </label>
             <label>
               Location:
               <input type="text" name="location" value={project.location} onChange={handleChange} />
+              <span style={{ color: 'red' }}>{errors.location}</span>
+
             </label>
             <label>
               Price:
               <input type="text" name="price" value={project.price} onChange={handleChange} />
+              <span style={{ color: 'red' }}>{errors.price}</span>
+
             </label>
             <label>
               Description:
               <textarea name="description" value={project.description} onChange={handleChange} />
+              <span style={{ color: 'red' }}>{errors.description}</span>
+
             </label>
             <button type="submit">Add Project</button>
           </form>
@@ -274,28 +361,16 @@ const ProjectManager = () => {
               <h3>{proj.projectName}</h3>
               {proj.projectPic && (
                 <div>
-                  {proj.projectPic instanceof Blob && proj.projectPic.type === 'application/pdf' ? (
-                    <div>
-                      <FontAwesomeIcon icon={faFilePdf} /> PDF
-                      <a
-                        href={URL.createObjectURL(proj.projectPic)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <FontAwesomeIcon icon={faDownload} /> Download PDF
-                      </a>
-                    </div>
-                  ) : (
-                    <img src={proj.projectPic instanceof Blob ? URL.createObjectURL(proj.projectPic) : proj.projectPic} alt={proj.projectName} />
-                  )}
+                  <img src={proj.projectPic instanceof Blob ? URL.createObjectURL(proj.projectPic) : proj.projectPic} alt={proj.projectName} />
                 </div>
               )}
+
               <p>Location: {proj.location}</p>
               <p>Price: {proj.price}</p>
               <p>Description: {proj.description}</p>
               <button onClick={() => handleUpdate(proj._id)}>{isEditing === proj._id ? 'Edit' : 'Update'}</button>
               <button onClick={() => handleDelete(proj._id)}>Delete</button>
-              {editingProject._id === proj._id && (
+              {editingProject._id && isEditing && (
                 <form className="project-form" onSubmit={handleUpdateSubmit}>
                   <label>
                     Name:
