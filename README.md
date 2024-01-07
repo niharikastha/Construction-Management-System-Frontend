@@ -1,70 +1,52 @@
-# Getting Started with Create React App
+**Construction Management System**
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Welcome to the Construction Management System repository! This project is designed to streamline construction project management, tasks, and documentation. The system incorporates the following key features:
 
-## Available Scripts
+### Key Features:
 
-In the project directory, you can run:
+**Authentication:**
+- Secure user and admin login/sign-up functionality using JWT (JSON Web Tokens) for authentication.
 
-### `npm start`
+**User's Side:**
+- **User Roles:** Create and manage different user roles for project details, allowing for updates and deletions.
+- **Database Management:** Set up a secure database to store user data and project-related information.
+- **Task Management:** Enable users to assign and manage tasks associated with construction projects.
+- **File Upload:** Allow users to upload construction sheets or blueprints in PDF format for documentation purposes.
 
-Runs the app in the development mode.\
-Open [http://localhost:4000](http://localhost:4000) to view it in your browser.
+### Technologies Used:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Frontend Technologies:** ReactJs
+- **Backend Technologies:** NodeJS
+- **Database:** MongoDB
 
-### `npm test`
+### Frontend Dependencies
+To install the frontend dependencies, run the following commands:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1.npm install react react-dom 
+2. npm install axios
+3.npm install --save @fortawesome/fontawesome-svg-core
+4.npm install --save @fortawesome/free-solid-svg-icons
+5.npm install --save @fortawesome/react-fontawesome
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+![Screenshot (328)](https://github.com/niharikastha/Construction-Management-System-Frontend/assets/78546317/03d08c7c-6495-4fab-9aa0-40a
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+![Screenshot (329)](https://github.com/niharikastha/Construction-Management-System-Frontend/assets/78546317/ae9578e9-3b79-4d1c-ac61-913fbd1611ab)
+369fc1f21)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+![Screenshot (330)](https://github.com/niharikastha/Construction-Management-System-Frontend/assets/78546317/386d67a6-e880-4bc8-a6e0-9c3b27966831)
+![Screenshot (331)](https://github.com/niharikastha/Construction-Management-System-Frontend/assets/78546317/bdca48af-c0e5-4c88-9f6b-4a79cd94b3d1)
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+![Screenshot (332)](https://github.com/niharikastha/Construction-Management-System-Frontend/assets/78546317/98103b03-1f29-4e74-a7a6-9a74753db60d)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+![Screenshot (333)](https://github.com/niharikastha/Construction-Management-System-Frontend/assets/78546317/3659fc32-dd32-4611-9e86-4a9069b89678)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+![Screenshot (334)](https://github.com/niharikastha/Construction-Management-System-Frontend/assets/78546317/047c6adc-a101-4688-94f5-2c08bf2b2830)
 
-## Learn More
+![Screenshot (335)](https://github.com/niharikastha/Construction-Management-System-Frontend/assets/78546317/554b581b-9a5c-4d4e-b601-e4e0d6604426)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Thank you for exploring our Construction Management System repository. Feel free to contribute, provide feedback, or use it as a foundation for your own projects!
