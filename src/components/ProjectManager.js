@@ -122,11 +122,6 @@ const ProjectManager = () => {
           'Authorization': `Bearer ${authToken}`,
         },
       });
-
-      if (response.status !== 200) {
-        throw new Error('Failed to add project');
-      }
-
       const newProject = { ...project, id: Date.now() };
       setProjects([...projects, newProject]);
       setProject({
@@ -155,6 +150,8 @@ const ProjectManager = () => {
       });
     } catch (error) {
       console.error('Error adding project:', error);
+      alert("Try again letter. Server error.")
+
     }
   };
 
@@ -166,6 +163,8 @@ const ProjectManager = () => {
       setEditingProject({ ...projectToUpdate });
     } catch (error) {
       console.error('Error updating project:', error);
+      alert("Try again letter. Server error.")
+
     }
   };
 
@@ -195,10 +194,6 @@ const ProjectManager = () => {
         },
       });
 
-      if (response.status !== 200) {
-        throw new Error('Failed to update project');
-      }
-
       setEditingProject({
         id: '',
         projectName: '',
@@ -210,6 +205,8 @@ const ProjectManager = () => {
       setIsEditing(null);
     } catch (error) {
       console.error('Error updating project:', error);
+      alert("Try again letter. Server error.")
+
     }
   };
 

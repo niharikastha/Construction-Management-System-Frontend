@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './ProjectManager.css';
+import './Constructor.css';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,11 +11,11 @@ const Constructor = () => {
     const navigate = useNavigate();
     const email = location.state.email;
 
-    const [projects, setProjects] = useState([]);
+    const [tasks, setTasks] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [isEditing, setIsEditing] = useState(null);
-    const [project, setProject] = useState({
+    const [task, setTask] = useState({
         constructionName: '',
         assignment: '',
         price: '',
@@ -23,8 +23,16 @@ const Constructor = () => {
         startDate: '',
         dueDate: ''
     });
-    const [editingProject, setEditingProject] = useState({
+    const [editingTask, setEditingTask] = useState({
         _id: '',
+        constructionName: '',
+        assignment: '',
+        price: '',
+        description: '',
+        startDate: '',
+        dueDate: ''
+    });
+    const [errors, setErrors] = useState({
         constructionName: '',
         assignment: '',
         price: '',
@@ -43,42 +51,72 @@ const Constructor = () => {
     };
 
     const handleChange = (e) => {
-        const { name, value, files } = e.target;
-        setProject({ ...project, [name]: value });
+        const { name, value } = e.target;
+        setTask({ ...task, [name]: value });
     };
 
     const handleEditChange = (e) => {
         const { name, value } = e.target;
-        setEditingProject({ ...editingProject, [name]: value });
+        setEditingTask({ ...editingTask, [name]: value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+        const newErrors = {};
+
+        if (!task.constructionName.trim()) {
+            newErrors.constructionName = 'Name is required';
+        }
+
+        if (!task.assignment.trim()) {
+            newErrors.assignment = 'Location is required';
+        }
+
+        if (!task.price.trim()) {
+            newErrors.price = 'Price is required';
+        } else if (isNaN(task.price)) {
+            newErrors.price = 'Price must be a number';
+        }
+
+        if (!task.description.trim()) {
+            newErrors.description = 'Description is required';
+        }
+        if (!task.startDate.trim()) {
+            newErrors.startDate = 'Start Date is required';
+        }
+        if (!task.dueDate.trim()) {
+            newErrors.dueDate = 'Due Date is required';
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            alert("Enter all the fields correctly!")
+            setErrors(newErrors);
+            return;
+        }
+
         try {
             const authToken = localStorage.getItem('authToken');
-            const formData = new FormData();
-    
-            formData.append('constructionName', project.constructionName);
-            formData.append('assignment', project.assignment);
-            formData.append('price', project.price);
-            formData.append('description', project.description);
-            formData.append('startDate', project.startDate);
-            formData.append('dueDate', project.dueDate);
-    
-            const response = await axios.post('http://localhost:4000/api/user/addConstructor', formData, {
+
+            const newConstructor = {
+                constructionName: task.constructionName,
+                assignment: task.assignment,
+                price: task.price,
+                description: task.description,
+                startDate: task.startDate,
+                dueDate: task.dueDate
+            };
+
+            const { data } = await axios.post('http://localhost:4000/api/user/addConstructor', newConstructor, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
                 },
             });
-    
-            if (response.status !== 200) {
-                throw new Error('Failed to add constructor');
-            }
-    
-            const newConstructor = { ...project, _id: response.data._id };
-            setProjects([...projects, newConstructor]);
-            setProject({
+
+            newConstructor._id = data.data._id;
+
+            setTasks([...tasks, newConstructor]);
+            setTask({
                 constructionName: '',
                 assignment: '',
                 price: '',
@@ -87,18 +125,38 @@ const Constructor = () => {
                 dueDate: ''
             });
             setShowForm(false);
+            setIsEditing(null);
+            setEditingTask({
+                _id: '',
+                constructionName: '',
+                assignment: '',
+                price: '',
+                description: '',
+                startDate: '',
+                dueDate: ''
+            });
+            setErrors({
+                constructionName: '',
+                assignment: '',
+                price: '',
+                description: '',
+                startDate: '',
+                dueDate: ''
+            });
         } catch (error) {
+            alert("Try again later. Server error.")
             console.error('Error adding constructor:', error);
         }
     };
-    
-    const handleUpdate = async (projectId) => {
-        setIsEditing(projectId);
+
+    const handleUpdate = async (taskId) => {
+        setIsEditing(taskId);
         try {
-            const projectToUpdate = projects.find((proj) => proj._id === projectId);
-            setEditingProject({ ...projectToUpdate });
+            const taskToUpdate = tasks.find((proj) => proj._id === taskId);
+            setEditingTask({ ...taskToUpdate });
         } catch (error) {
             console.error('Error updating constructor:', error);
+            alert("Try again later. Server error.");
         }
     };
 
@@ -106,30 +164,27 @@ const Constructor = () => {
         e.preventDefault();
 
         try {
-            const index = projects.findIndex((proj) => proj._id === editingProject._id);
+            const index = tasks.findIndex((proj) => proj._id === editingTask._id);
 
             if (index !== -1) {
-                setProjects((previous) => {
-                    const updatedProjects = [...previous];
-                    updatedProjects[index] = editingProject;
-                    return updatedProjects;
+                setTasks((previous) => {
+                    const updatedTasks = [...previous];
+                    updatedTasks[index] = editingTask;
+                    return updatedTasks;
                 });
             } else {
                 console.error("Constructor not found in the array.");
             }
             const authToken = localStorage.getItem('authToken');
 
-            const response = await axios.patch(`http://localhost:4000/api/user/updateConstructor/${editingProject._id}`, editingProject, {
+            await axios.patch(`http://localhost:4000/api/user/updateConstructor/${editingTask._id}`, editingTask, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
                 },
             });
 
-            if (response.status !== 200) {
-                throw new Error('Failed to update constructor');
-            }
-
-            setEditingProject({
+            setEditingTask({
                 _id: '',
                 constructionName: '',
                 assignment: '',
@@ -141,18 +196,19 @@ const Constructor = () => {
             setIsEditing(null);
         } catch (error) {
             console.error('Error updating constructor:', error);
+            alert("Try again later. Server error.");
         }
     };
 
-    const handleDelete = async (projectId) => {
+    const handleDelete = async (taskId) => {
         try {
             const authToken = localStorage.getItem('authToken');
-            await axios.delete(`http://localhost:4000/api/user/deleteConstructor/${projectId}`, {
+            await axios.delete(`http://localhost:4000/api/user/deleteConstructor/${taskId}`, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
                 },
             });
-            setProjects(projects.filter((proj) => proj._id !== projectId));
+            setTasks(tasks.filter((proj) => proj._id !== taskId));
         } catch (error) {
             console.error('Error deleting constructor:', error);
         }
@@ -169,13 +225,12 @@ const Constructor = () => {
                     },
                 });
 
-                setProjects(data.data);
+                setTasks(data.data);
 
                 const filteredProjects = data.data.filter(proj =>
                     proj.constructionName.toLowerCase().includes(searchTerm.toLowerCase())
                 );
-
-                setProjects(filteredProjects);
+                setTasks(filteredProjects);
 
             } catch (error) {
                 console.error('Error fetching constructors:', error);
@@ -184,7 +239,28 @@ const Constructor = () => {
 
         fetchConstructors();
     }, [searchTerm]);
+    useEffect(() => {
+        const checkAuthToken = async () => {
+            const authToken = localStorage.getItem('authToken');
 
+            if (!authToken) {
+                // If there's no token, navigate to the login page
+                navigate('/');
+                return;
+            }
+            // try {
+            //   const response = await axios.get('http://localhost:4000/api/user/checkToken', {
+            //     headers: {
+            //       Authorization: `Bearer ${authToken}`,
+            //     },
+            //   });
+            // } catch (error) {
+            //   navigate('/');
+            // }
+        };
+
+        checkAuthToken();
+    }, [navigate]);
     const toggleForm = () => {
         setShowForm(!showForm);
     };
@@ -210,7 +286,7 @@ const Constructor = () => {
                 <div className="search-bar">
                     <input
                         type="text"
-                        placeholder="Search projects..."
+                        placeholder="Search tasks..."
                         value={searchTerm}
                         onChange={handleSearchChange}
                     />
@@ -224,35 +300,46 @@ const Constructor = () => {
                     <form className="project-form" onSubmit={handleSubmit}>
                         <label>
                             Construction Name:
-                            <input type="text" name="constructionName" value={project.constructionName} onChange={handleChange} />
+                            <input type="text" name="constructionName" value={task.constructionName} onChange={handleChange} />
+                            <span style={{ color: 'red' }}>{errors.constructionName}</span>
                         </label>
                         <label>
                             Assignment:
-                            <input type="text" name="assignment" value={project.assignment} onChange={handleChange} />
+                            <input type="text" name="assignment" value={task.assignment} onChange={handleChange} />
+                            <span style={{ color: 'red' }}>{errors.assignment}</span>
+
                         </label>
                         <label>
                             Price:
-                            <input type="text" name="price" value={project.price} onChange={handleChange} />
+                            <input type="text" name="price" value={task.price} onChange={handleChange} />
+                            <span style={{ color: 'red' }}>{errors.price}</span>
+
                         </label>
                         <label>
                             Description:
-                            <textarea name="description" value={project.description} onChange={handleChange} />
+                            <textarea name="description" value={task.description} onChange={handleChange} />
+                            <span style={{ color: 'red' }}>{errors.description}</span>
+
                         </label>
                         <label>
                             Start Date:
-                            <input type="date" name="startDate" value={project.startDate} onChange={handleChange} />
+                            <input type="date" name="startDate" value={task.startDate} onChange={handleChange} />
+                            <span style={{ color: 'red' }}>{errors.startDate}</span>
+
                         </label>
                         <label>
                             End Date:
-                            <input type="date" name="dueDate" value={project.dueDate} onChange={handleChange} />
+                            <input type="date" name="dueDate" value={task.dueDate} onChange={handleChange} />
+                            <span style={{ color: 'red' }}>{errors.dueDate}</span>
+
                         </label>
-                        <button type="submit">Add Project</button>
+                        <button type="submit">Add Task</button>
                     </form>
                 )}
 
                 <h2>All Contractor Tasks</h2>
                 <ul>
-                    {projects && projects.map((proj) => (
+                    {tasks && tasks.map((proj) => (
                         <li key={proj._id}>
                             <h3>{proj.constructionName}</h3>
                             <p>Assignment: {proj.assignment}</p>
@@ -262,14 +349,14 @@ const Constructor = () => {
                             <p>Description: {proj.description}</p>
                             <button onClick={() => handleUpdate(proj._id)}>{isEditing === proj._id ? 'Edit' : 'Update'}</button>
                             <button onClick={() => handleDelete(proj._id)}>Delete</button>
-                            {isEditing === proj._id && (
+                            {isEditing === proj._id && isEditing && (
                                 <form className="project-form" onSubmit={handleUpdateSubmit}>
                                     <label>
                                         Construction Name:
                                         <input
                                             type="text"
                                             name="constructionName"
-                                            value={editingProject.constructionName}
+                                            value={editingTask.constructionName}
                                             onChange={handleEditChange}
                                         />
                                     </label>
@@ -278,7 +365,7 @@ const Constructor = () => {
                                         <input
                                             type="text"
                                             name="assignment"
-                                            value={editingProject.assignment}
+                                            value={editingTask.assignment}
                                             onChange={handleEditChange}
                                         />
                                     </label>
@@ -287,7 +374,7 @@ const Constructor = () => {
                                         <input
                                             type="text"
                                             name="price"
-                                            value={editingProject.price}
+                                            value={editingTask.price}
                                             onChange={handleEditChange}
                                         />
                                     </label>
@@ -295,7 +382,7 @@ const Constructor = () => {
                                         Description:
                                         <textarea
                                             name="description"
-                                            value={editingProject.description}
+                                            value={editingTask.description}
                                             onChange={handleEditChange}
                                         />
                                     </label>
@@ -304,7 +391,7 @@ const Constructor = () => {
                                         <input
                                             type="date"
                                             name="startDate"
-                                            value={editingProject.startDate}
+                                            value={editingTask.startDate}
                                             onChange={handleEditChange}
                                         />
                                     </label>
@@ -313,11 +400,11 @@ const Constructor = () => {
                                         <input
                                             type="date"
                                             name="dueDate"
-                                            value={editingProject.dueDate}
+                                            value={editingTask.dueDate}
                                             onChange={handleEditChange}
                                         />
                                     </label>
-                                    <button type="submit">Update Project</button>
+                                    <button type="submit">Update Task</button>
                                 </form>
                             )}
                         </li>
