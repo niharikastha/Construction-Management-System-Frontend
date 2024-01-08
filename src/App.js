@@ -1,12 +1,12 @@
 import './App.css';
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './components/Login';
-import Admin from './components/Admin';
-import Signup from './components/Signup';
-import ProjectManager from './components/ProjectManager';
-import Constructor from './components/Constructor';
-import Supervisor from './components/Supervisor';
+import Login from './components/Login/Login';
+import Admin from './components/Admin/Admin';
+import Signup from './components/Signup/Signup';
+import ProjectManager from './components/ProjectManager/ProjectManager';
+import Constructor from './components/Constructor/Constructor';
+import Supervisor from './components/Supervisor/Supervisor';
 
 const App = () => {
   return (

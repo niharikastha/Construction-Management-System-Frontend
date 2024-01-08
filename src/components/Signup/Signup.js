@@ -17,7 +17,7 @@ const Signup = () => {
   const [roleError, setRoleError] = useState('');
 
   const handleSignup = async () => {
-    // Validation checks
+
     if (!email) {
       setEmailError('Email is required');
       return;
@@ -59,19 +59,17 @@ const Signup = () => {
     } else {
       setRoleError('');
     }
-    // API call
     try {
       console.log('Before making API request');
 
       const { data } = await axios.post('http://localhost:4000/api/auth/signup', { email, password, confirmPassword, role });
 
-      // Save the authentication token in local storage
-      // localStorage.setItem('authToken', data.data);
       console.log('Signup successful:', data);
       alert('Signup Successfull !')
       navigate('/');
 
     } catch (error) {
+      alert("Server Error");
       console.error('Signup error:', error);
     }
   };

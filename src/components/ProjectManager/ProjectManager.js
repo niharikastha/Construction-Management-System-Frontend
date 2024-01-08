@@ -4,8 +4,9 @@ import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
+import fileDownload from 'js-file-download';
 import axios from 'axios';
+
 
 const ProjectManager = () => {
   const location = useLocation();
@@ -50,6 +51,8 @@ const ProjectManager = () => {
     setSearchTerm(e.target.value);
   };
 
+
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -92,10 +95,10 @@ const ProjectManager = () => {
     if (!project.picture) {
       newErrors.picture = 'Picture is required';
     } else {
-      const allowedFormats = ['jpg', 'jpeg', 'png'];
+      const allowedFormats = ['jpg', 'jpeg', 'png', 'pdf'];
       const pictureFormat = project.picture?.name.split('.').pop().toLowerCase();
       if (!allowedFormats.includes(pictureFormat)) {
-        newErrors.picture = 'Picture must be in JPG, JPEG, or PNG format';
+        newErrors.picture = 'Picture must be in JPG, JPEG,PDF or PNG format';
       }
     }
 
@@ -116,7 +119,7 @@ const ProjectManager = () => {
       formData.append('price', project.price);
       formData.append('description', project.description);
 
-      const response = await axios.post('http://localhost:4000/api/user/addProject', formData, {
+      await axios.post('http://localhost:4000/api/user/addProject', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${authToken}`,
@@ -187,7 +190,7 @@ const ProjectManager = () => {
       }
       const authToken = localStorage.getItem('authToken');
       console.log(editingProject, "form");
-      const response = await axios.patch(`http://localhost:4000/api/user/updateProject/${editingProject._id}`, editingProject, {
+      await axios.patch(`http://localhost:4000/api/user/updateProject/${editingProject._id}`, editingProject, {
         headers: {
           // 'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${authToken}`,
@@ -223,6 +226,26 @@ const ProjectManager = () => {
       console.error('Error deleting project:', error);
     }
   };
+
+
+  const handleDownload = async (projectId, fileType) => {
+    try {
+      const authToken = localStorage.getItem('authToken');
+      const response = await axios.get(`http://localhost:4000/api/user/downloadProject/${projectId}`, {
+        responseType: 'blob',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+
+      const fileName = `project_${projectId}.${fileType}`;
+      fileDownload(response.data, fileName);
+    } catch (error) {
+      console.error('Error downloading project file:', error);
+      alert("Error downloading project file. Try again later.");
+    }
+  };
+
 
   const toggleForm = () => {
     setShowForm(!showForm);
@@ -365,8 +388,15 @@ const ProjectManager = () => {
               <p>Location: {proj.location}</p>
               <p>Price: {proj.price}</p>
               <p>Description: {proj.description}</p>
-              <button onClick={() => handleUpdate(proj._id)}>{isEditing === proj._id ? 'Edit' : 'Update'}</button>
+
+              <button onClick={() => handleUpdate(proj._id)}>
+                {isEditing === proj._id ? 'Edit' : 'Update'}
+              </button>
               <button onClick={() => handleDelete(proj._id)}>Delete</button>
+              <button onClick={() => handleDownload(proj._id, 'pdf')}>Download PDF</button>
+              <button onClick={() => handleDownload(proj._id, 'jpg')}>Download Image</button>
+
+              
               {editingProject._id && isEditing && (
                 <form className="project-form" onSubmit={handleUpdateSubmit}>
                   <label>
