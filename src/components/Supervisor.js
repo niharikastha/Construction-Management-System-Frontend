@@ -174,7 +174,7 @@ const Supervisor = () => {
       }
     };
     fetchWorks();
-  }, []);
+  }, [searchTerm]);
 
   const toggleForm = () => {
     setShowForm(!showForm);

@@ -21,7 +21,7 @@ const Constructor = () => {
         price: '',
         description: '',
         startDate: '',
-        dueDate: ''
+        dueDate: '',
     });
     const [editingTask, setEditingTask] = useState({
         _id: '',
@@ -224,9 +224,8 @@ const Constructor = () => {
                         Authorization: `Bearer ${authToken}`,
                     },
                 });
-
+                console.log(data.data);
                 setTasks(data.data);
-
                 const filteredProjects = data.data.filter(proj =>
                     proj.constructionName.toLowerCase().includes(searchTerm.toLowerCase())
                 );
@@ -328,7 +327,7 @@ const Constructor = () => {
 
                         </label>
                         <label>
-                            End Date:
+                            Due Date:
                             <input type="date" name="dueDate" value={task.dueDate} onChange={handleChange} />
                             <span style={{ color: 'red' }}>{errors.dueDate}</span>
 
@@ -345,7 +344,7 @@ const Constructor = () => {
                             <p>Assignment: {proj.assignment}</p>
                             <p>Price: {proj.price}</p>
                             <p>Start Date: {proj.startDate}</p>
-                            <p>End Date: {proj.endDate}</p>
+                            <p>Due Date: {proj.dueDate}</p>
                             <p>Description: {proj.description}</p>
                             <button onClick={() => handleUpdate(proj._id)}>{isEditing === proj._id ? 'Edit' : 'Update'}</button>
                             <button onClick={() => handleDelete(proj._id)}>Delete</button>
@@ -396,7 +395,7 @@ const Constructor = () => {
                                         />
                                     </label>
                                     <label>
-                                        End Date:
+                                        Due Date:
                                         <input
                                             type="date"
                                             name="dueDate"
